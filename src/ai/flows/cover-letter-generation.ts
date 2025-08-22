@@ -9,11 +9,13 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const CoverLetterInputSchema = z.object({
   jobDescription: z.string().describe('The job description to tailor the cover letter to.'),
   userInformation: z.string().describe('The user information to include in the cover letter.'),
+  apiKey: z.string().optional().describe('The Gemini API key.'),
 });
 export type CoverLetterInput = z.infer<typeof CoverLetterInputSchema>;
 
@@ -46,7 +48,17 @@ const coverLetterFlow = ai.defineFlow(
     outputSchema: CoverLetterOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {apiKey, ...rest} = input;
+    const model = googleAI({apiKey});
+
+    const {output} = await ai.generate({
+      prompt: prompt.prompt,
+      model: model.model('gemini-2.0-flash'),
+      output: {
+        schema: prompt.output.schema!,
+      },
+      input: rest,
+    });
     return output!;
   }
 );

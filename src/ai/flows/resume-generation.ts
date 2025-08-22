@@ -9,11 +9,13 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const GenerateResumeInputSchema = z.object({
   userDetails: z.string().describe('A comprehensive string of the user details, including name, contact info, work experience, education, skills, projects, and certifications.'),
   jobDescription: z.string().describe('The job description to tailor the resume to.'),
+  apiKey: z.string().optional().describe('The Gemini API key.'),
 });
 export type GenerateResumeInput = z.infer<typeof GenerateResumeInputSchema>;
 
@@ -53,7 +55,16 @@ const generateResumeFlow = ai.defineFlow(
     outputSchema: GenerateResumeOutputSchema,
   },
   async input => {
-    const {output} = await resumePrompt(input);
+    const {apiKey, ...rest} = input;
+    const model = googleAI({apiKey});
+    const {output} = await ai.generate({
+      prompt: resumePrompt.prompt,
+      model: model.model('gemini-2.0-flash'),
+      output: {
+        schema: resumePrompt.output.schema!,
+      },
+      input: rest,
+    });
     return output!;
   }
 );

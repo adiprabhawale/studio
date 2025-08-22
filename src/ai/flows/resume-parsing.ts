@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const ParseResumeInputSchema = z.object({
@@ -17,6 +18,7 @@ const ParseResumeInputSchema = z.object({
     .describe(
       "The resume file (PDF or DOCX) as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+  apiKey: z.string().optional().describe('The Gemini API key.'),
 });
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
@@ -64,7 +66,16 @@ const parseResumeFlow = ai.defineFlow(
     outputSchema: ParseResumeOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {apiKey, ...rest} = input;
+    const model = googleAI({apiKey});
+    const {output} = await ai.generate({
+      prompt: prompt.prompt,
+      model: model.model('gemini-2.0-flash'),
+      output: {
+        schema: prompt.output.schema!,
+      },
+      input: rest,
+    });
     return output!;
   }
 );

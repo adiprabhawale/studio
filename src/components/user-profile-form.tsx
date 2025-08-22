@@ -72,6 +72,12 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({ variant: 'destructive', title: 'File too large', description: 'Please upload a file smaller than 5MB.' });
       return;
@@ -84,7 +90,7 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
       startParsing(async () => {
         try {
           toast({ title: 'Parsing resume...', description: 'Please wait while we extract your information.' });
-          const parsedData = await parseResumeAction(dataUri);
+          const parsedData = await parseResumeAction(dataUri, apiKey);
           form.reset({
             name: parsedData.name,
             email: parsedData.email,

@@ -26,6 +26,16 @@ export default function Home() {
   const [coverLetter, setCoverLetter] = useState<string>('');
 
   const handleGeneration = () => {
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      toast({
+        variant: 'destructive',
+        title: 'API Key Missing',
+        description: 'Please set your Gemini API key in the header.',
+      });
+      return;
+    }
+
     if (!userProfile) {
       toast({
         variant: 'destructive',
@@ -60,9 +70,9 @@ export default function Home() {
         toast({ title: 'Generating Content...', description: 'AI is working its magic. Please wait.' });
         
         const [resumeResult, atsResult, coverLetterResult] = await Promise.all([
-          generateResumeAction(validation.data, jobDescription),
-          calculateAtsScoreAction(validation.data, jobDescription),
-          generateCoverLetterAction(validation.data, jobDescription)
+          generateResumeAction(validation.data, jobDescription, apiKey),
+          calculateAtsScoreAction(validation.data, jobDescription, apiKey),
+          generateCoverLetterAction(validation.data, jobDescription, apiKey)
         ]);
 
         setGeneratedResume(resumeResult.resume);

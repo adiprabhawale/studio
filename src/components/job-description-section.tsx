@@ -21,6 +21,11 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
   const [analysis, setAnalysis] = useState<AnalyzeJobDescriptionOutput | null>(null);
 
   const handleAnalyze = () => {
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
+      return;
+    }
     if (!description) {
       toast({ variant: 'destructive', title: 'Error', description: 'Please paste a job description.' });
       return;
@@ -28,7 +33,7 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
     startAnalyzing(async () => {
       try {
         toast({ title: 'Analyzing...', description: 'Extracting key details from the job description.' });
-        const result = await analyzeJobDescriptionAction(description);
+        const result = await analyzeJobDescriptionAction(description, apiKey);
         setAnalysis(result);
         toast({ title: 'Analysis complete!', description: 'Identified key skills, qualifications, and keywords.' });
       } catch (error) {
