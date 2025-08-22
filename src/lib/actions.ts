@@ -21,7 +21,7 @@ function formatUserProfileForAI(profile: UserProfile): string {
     let formatted = `Name: ${profile.name}\nEmail: ${profile.email}\nPhone: ${profile.phone}\n\n`;
 
     if (profile.skills?.length > 0) {
-        formatted += `Skills:\n- ${profile.skills.join('\n- ')}\n\n`;
+        formatted += `Skills: ${profile.skills.join(', ')}\n\n`;
     }
 
     if (profile.experiences?.length > 0) {
