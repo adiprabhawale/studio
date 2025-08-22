@@ -81,14 +81,16 @@ export function GeneratedContent({
           
           <TabsContent value="resume" className="flex-1 mt-4">
             <div className="border rounded-lg p-6 bg-secondary/30 min-h-[300px] prose prose-sm max-w-none dark:prose-invert">
-              {isLoading ? <LoadingState /> : <pre className="whitespace-pre-wrap font-body text-sm">{resume || "Your generated resume will appear here."}</pre>}
+              {isLoading ? <LoadingState /> : (
+                <div dangerouslySetInnerHTML={{ __html: resume.replace(/\n/g, '<br />') || "Your generated resume will appear here."}} />
+              )}
             </div>
             <Button onClick={handlePrint} disabled={!resume} className="mt-4 w-full">
               <Download className="mr-2 h-4 w-4" /> Download as PDF
             </Button>
             <div className="hidden">
               <div ref={resumePrintRef}>
-                  <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'sans-serif', fontSize: '12px' }}>{resume}</pre>
+                  <div dangerouslySetInnerHTML={{ __html: resume.replace(/\n/g, '<br />') }} />
               </div>
             </div>
           </TabsContent>
