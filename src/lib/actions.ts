@@ -19,13 +19,13 @@ async function configureGenkitWithApiKey(apiKey: string) {
 
 export async function parseResumeAction(resumeDataUri: string, apiKey: string) {
   await configureGenkitWithApiKey(apiKey);
-  const result = await parseResume({ resumeDataUri });
+  const result = await parseResume({ resumeDataUri, apiKey });
   return result;
 }
 
 export async function analyzeJobDescriptionAction(jobDescription: string, apiKey: string) {
   await configureGenkitWithApiKey(apiKey);
-  const result = await analyzeJobDescription({ jobDescription });
+  const result = await analyzeJobDescription({ jobDescription, apiKey });
   return result;
 }
 
@@ -77,20 +77,20 @@ function formatUserProfileForAI(profile: UserProfile): string {
 export async function generateResumeAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     await configureGenkitWithApiKey(apiKey);
     const userDetails = formatUserProfileForAI(profile);
-    const result = await generateResume({ userDetails, jobDescription });
+    const result = await generateResume({ userDetails, jobDescription, apiKey });
     return result;
 }
 
 export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     await configureGenkitWithApiKey(apiKey);
     const resumeText = formatUserProfileForAI(profile);
-    const result = await calculateAtsScore({ resume: resumeText, jobDescription });
+    const result = await calculateAtsScore({ resume: resumeText, jobDescription, apiKey });
     return result;
 }
 
 export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     await configureGenkitWithApiKey(apiKey);
     const userInformation = formatUserProfileForAI(profile);
-    const result = await generateCoverLetter({ jobDescription, userInformation });
+    const result = await generateCoverLetter({ jobDescription, userInformation, apiKey });
     return result;
 }
