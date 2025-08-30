@@ -21,7 +21,7 @@ export const projectSchema = z.object({
   id: z.string().optional(),
   name: z.string().default(''),
   description: z.string().default(''),
-  url: z.string().url().optional().or(z.literal('')),
+  url: z.string().optional().default(''),
 });
 
 export const certificationSchema = z.object({
