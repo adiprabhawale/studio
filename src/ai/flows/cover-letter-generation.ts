@@ -36,7 +36,8 @@ Job Description: {{{jobDescription}}}
 
 User Information: {{{userInformation}}}
 
-Cover Letter:`, //The cover letter itself. Make sure it is well-formatted and professional.
+Generate a professional, well-formatted cover letter.
+`,
 });
 
 const coverLetterFlow = ai.defineFlow(
@@ -46,14 +47,7 @@ const coverLetterFlow = ai.defineFlow(
     outputSchema: CoverLetterOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-      prompt: prompt.prompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-        schema: prompt.output.schema!,
-      },
-      input: input,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );

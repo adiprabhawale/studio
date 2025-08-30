@@ -36,11 +36,7 @@ const prompt = ai.definePrompt({
 Job Description:
 {{{jobDescription}}}
 
-Skills: (list the skills as a simple array of strings)
-Qualifications: (list the qualifications as a simple array of strings)
-Keywords: (list the keywords as a simple array of strings)
-
-Make sure the output is parseable JSON.
+Extract the key skills, qualifications, and keywords from the job description.
 `,
 });
 
@@ -51,14 +47,7 @@ const analyzeJobDescriptionFlow = ai.defineFlow(
     outputSchema: AnalyzeJobDescriptionOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-      prompt: prompt.prompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-        schema: prompt.output.schema!,
-      },
-      input: input,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );

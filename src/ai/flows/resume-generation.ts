@@ -19,8 +19,6 @@ export type GenerateResumeInput = z.infer<typeof GenerateResumeInputSchema>;
 
 const GenerateResumeOutputSchema = z.object({
   resume: z.string().describe('The generated resume in a readable format, tailored to the job description.'),
-  atsScore: z.number().describe('The ATS score of the generated resume, reflecting its match to the job description.'),
-  improvementSuggestions: z.string().describe('Suggestions for improving the resume to better match the job description and ATS requirements.'),
 });
 export type GenerateResumeOutput = z.infer<typeof GenerateResumeOutputSchema>;
 
@@ -38,11 +36,10 @@ User Details: {{{userDetails}}}
 
 Job Description: {{{jobDescription}}}
 
-Consider the job description to highlight relevant skills and experiences. Provide an ATS score reflecting the match between the generated resume and the job description. Also, provide improvement suggestions to enhance the resume's effectiveness.
-
+Consider the job description to highlight relevant skills and experiences.
 Ensure the resume is visually appealing and easy to read. Include all relevant sections such as work experience, education, skills, projects, and certifications.
-
-Output the resume, ATS score, and improvement suggestions.
+The skills section should be a comma-separated list.
+Do not use markdown formatting. The output should be plain text.
 `,
 });
 
@@ -53,14 +50,7 @@ const generateResumeFlow = ai.defineFlow(
     outputSchema: GenerateResumeOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-      prompt: resumePrompt.prompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-        schema: resumePrompt.output.schema!,
-      },
-      input: input,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );

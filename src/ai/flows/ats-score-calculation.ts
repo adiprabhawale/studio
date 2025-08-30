@@ -27,7 +27,7 @@ export async function calculateAtsScore(input: CalculateAtsScoreInput): Promise<
   return calculateAtsScoreFlow(input);
 }
 
-const calculateAtsScorePrompt = ai.definePrompt({
+const prompt = ai.definePrompt({
   name: 'calculateAtsScorePrompt',
   input: {schema: CalculateAtsScoreInputSchema},
   output: {schema: CalculateAtsScoreOutputSchema},
@@ -40,12 +40,7 @@ Job Description:
 {{{jobDescription}}}
 
 Consider factors such as keyword matching, formatting, section headings, and overall relevance to the job description. Explain why the ATS score was assigned and focus on improvements related to getting past the ATS. Focus on providing suggestions that improve the keyword matching in particular, such as re-wording the resume to use the same keywords.
-
-Respond with the ATS score and suggestions in the following JSON format:
-{
-  "atsScore": number,
-  "suggestions": string[]
-}`,
+`,
 });
 
 const calculateAtsScoreFlow = ai.defineFlow(
@@ -55,14 +50,7 @@ const calculateAtsScoreFlow = ai.defineFlow(
     outputSchema: CalculateAtsScoreOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-      prompt: calculateAtsScorePrompt.prompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-        schema: calculateAtsScorePrompt.output.schema!,
-      },
-      input: input,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );
