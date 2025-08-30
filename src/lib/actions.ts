@@ -1,7 +1,5 @@
 
 'use server';
-import { config } from 'dotenv';
-config();
 
 import { parseResume } from '@/ai/flows/resume-parsing';
 import { analyzeJobDescription } from '@/ai/flows/job-description-analysis';
@@ -11,8 +9,8 @@ import { generateCoverLetter } from '@/ai/flows/cover-letter-generation';
 import type { UserProfile } from './types';
 
 
-export async function parseResumeAction(resumeDataUri: string) {
-  const result = await parseResume({ resumeDataUri });
+export async function parseResumeAction(resumeDataUri: string, apiKey: string) {
+  const result = await parseResume({ resumeDataUri, apiKey });
   return result;
 }
 
