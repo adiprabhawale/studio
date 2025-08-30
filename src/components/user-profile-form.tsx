@@ -83,16 +83,6 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
       return;
     }
 
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) {
-      toast({
-        variant: 'destructive',
-        title: 'API Key Not Set',
-        description: 'Please set your Gemini API key in the header before parsing a resume.',
-      });
-      return;
-    }
-    
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
