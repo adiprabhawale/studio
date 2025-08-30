@@ -1,7 +1,5 @@
 
 'use server';
-import { config } from 'dotenv';
-config();
 
 /**
  * @fileOverview Cover letter generation flow.
@@ -12,7 +10,7 @@ config();
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { googleAI } from '@genkit-ai/googleai';
 
 const CoverLetterInputSchema = z.object({
@@ -32,7 +30,7 @@ export async function generateCoverLetter(input: CoverLetterInput): Promise<Cove
 
 const prompt = ai.definePrompt({
   name: 'coverLetterPrompt',
-  model: googleAI.model('gemini-2.0-flash'),
+  model: googleAI.model('gemini-1.5-flash'),
   input: {schema: CoverLetterInputSchema},
   output: {schema: CoverLetterOutputSchema},
   prompt: `You are an expert career advisor. Your goal is to generate a cover letter based on the user information provided and tailored to the job description provided.

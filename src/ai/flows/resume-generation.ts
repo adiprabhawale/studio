@@ -1,7 +1,5 @@
 
 'use server';
-import { config } from 'dotenv';
-config();
 
 /**
  * @fileOverview Dynamically generates a professional resume based on user information and job description.
@@ -12,7 +10,7 @@ config();
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateResumeInputSchema = z.object({
@@ -32,7 +30,7 @@ export async function generateResume(input: GenerateResumeInput): Promise<Genera
 
 const resumePrompt = ai.definePrompt({
   name: 'resumePrompt',
-  model: googleAI.model('gemini-2.0-flash'),
+  model: googleAI.model('gemini-1.5-flash'),
   input: {schema: GenerateResumeInputSchema},
   output: {schema: GenerateResumeOutputSchema},
   prompt: `You are a professional resume writer. Generate a resume based on the user's details and tailored to the job description provided.
