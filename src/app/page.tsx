@@ -26,10 +26,12 @@ export default function Home() {
   const [coverLetter, setCoverLetter] = useState<string>('');
   
   // This state is just to trigger re-renders when the key changes.
-  const [, setApiKey] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for API key in localStorage on mount
+    // Check for API key in localStorage on mount.
+    // This is primarily for the dev environment. In production,
+    // the server should use the environment variable.
     const storedApiKey = localStorage.getItem('gemini_api_key');
     if (storedApiKey) {
       setApiKey(storedApiKey);
@@ -38,8 +40,10 @@ export default function Home() {
 
 
   const handleGeneration = () => {
-    const storedApiKey = localStorage.getItem('gemini_api_key');
-    if (!storedApiKey) {
+    // In production, the server should have the API key.
+    // For local dev, we check local storage.
+    const hasApiKey = !!localStorage.getItem('gemini_api_key') || !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!hasApiKey && process.env.NODE_ENV === 'development') {
        toast({
         variant: 'destructive',
         title: 'API Key Not Set',
@@ -47,9 +51,6 @@ export default function Home() {
       });
       return;
     }
-    
-    // We don't need to set a state for the key here for generation, 
-    // as we pass it directly to the action.
 
     if (!userProfile) {
       toast({
@@ -84,11 +85,12 @@ export default function Home() {
       try {
         toast({ title: 'Generating Content...', description: 'AI is working its magic. Please wait.' });
         
-        // Pass the API key to each action
+        // We no longer need to pass the API key to actions.
+        // The server will use the environment variable.
         const [resumeResult, atsResult, coverLetterResult] = await Promise.all([
-          generateResumeAction(validation.data, jobDescription, storedApiKey),
-          calculateAtsScoreAction(validation.data, jobDescription, storedApiKey),
-          generateCoverLetterAction(validation.data, jobDescription, storedApiKey)
+          generateResumeAction(validation.data, jobDescription),
+          calculateAtsScoreAction(validation.data, jobDescription),
+          generateCoverLetterAction(validation.data, jobDescription)
         ]);
 
         setGeneratedResume(resumeResult.resume);

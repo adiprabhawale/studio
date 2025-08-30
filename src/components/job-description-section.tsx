@@ -21,8 +21,8 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
   const [analysis, setAnalysis] = useState<AnalyzeJobDescriptionOutput | null>(null);
 
   const handleAnalyze = () => {
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) {
+    const hasApiKey = !!localStorage.getItem('gemini_api_key') || !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!hasApiKey && process.env.NODE_ENV === 'development') {
       toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
       return;
     }
@@ -34,11 +34,11 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
     startAnalyzing(async () => {
       try {
         toast({ title: 'Analyzing...', description: 'Extracting key details from the job description.' });
-        const result = await analyzeJobDescriptionAction(description, apiKey);
+        const result = await analyzeJobDescriptionAction(description);
         setAnalysis(result);
         toast({ title: 'Analysis complete!', description: 'Identified key skills, qualifications, and keywords.' });
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description. Check your API key.' });
+        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description. Check your API key and try again.' });
       }
     });
   };

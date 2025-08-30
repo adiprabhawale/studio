@@ -55,10 +55,10 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
     },
   });
 
-  const { fields: experiences, append: appendExperience, remove: removeExperience } = useFieldArray({ control: form.control, name: 'experiences' });
-  const { fields: educations, append: appendEducation, remove: removeEducation } = useFieldArray({ control: form.control, name: 'education' });
-  const { fields: projects, append: appendProject, remove: removeProject } = useFieldArray({ control: form.control, name: 'projects' });
-  const { fields: certifications, append: appendCertification, remove: removeCertification } = useFieldArray({ control: form.control, name: 'certifications' });
+  const { fields: experiences, append: appendExperience, remove: removeExperience, replace: replaceExperiences } = useFieldArray({ control: form.control, name: 'experiences' });
+  const { fields: educations, append: appendEducation, remove: removeEducation, replace: replaceEducations } = useFieldArray({ control: form.control, name: 'education' });
+  const { fields: projects, append: appendProject, remove: removeProject, replace: replaceProjects } = useFieldArray({ control: form.control, name: 'projects' });
+  const { fields: certifications, append: appendCertification, remove: removeCertification, replace: replaceCertifications } = useFieldArray({ control: form.control, name: 'certifications' });
   const skills = form.watch('skills');
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
     if (!file) return;
 
     const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) {
+    if (!apiKey && !process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
       toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
       return;
     }
@@ -90,20 +90,25 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
       startParsing(async () => {
         try {
           toast({ title: 'Parsing resume...', description: 'Please wait while we extract your information.' });
-          const parsedData = await parseResumeAction(dataUri, apiKey);
+          const parsedData = await parseResumeAction(dataUri);
+          
           form.reset({
             name: parsedData.name,
             email: parsedData.email,
             phone: parsedData.phone,
-            skills: parsedData.skills,
-            experiences: parsedData.experience.map(exp => ({...workExperienceSchema.parse({}), description: exp})),
-            education: parsedData.education.map(edu => ({...educationSchema.parse({}), institution: edu})),
-            projects: parsedData.projects.map(proj => ({...projectSchema.parse({}), name: proj})),
-            certifications: parsedData.certifications.map(cert => ({...certificationSchema.parse({}), name: cert})),
+            skills: parsedData.skills || [],
           });
+
+          // RHF's `reset` doesn't work well with `useFieldArray`, so we use `replace`
+          replaceExperiences(parsedData.experience || []);
+          replaceEducations(parsedData.education || []);
+          replaceProjects(parsedData.projects || []);
+          replaceCertifications(parsedData.certifications || []);
+          
           toast({ title: 'Success!', description: 'Your resume has been parsed.' });
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Parsing failed', description: 'Could not parse resume. Please check your API key and try again.' });
+          console.error("Parsing failed:", error);
+          toast({ variant: 'destructive', title: 'Parsing failed', description: error instanceof Error ? error.message : 'Could not parse resume. Please check your API key and file, then try again.' });
         }
       });
     };

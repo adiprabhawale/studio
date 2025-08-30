@@ -6,29 +6,18 @@ import { generateResume } from '@/ai/flows/resume-generation';
 import { calculateAtsScore } from '@/ai/flows/ats-score-calculation';
 import { generateCoverLetter } from '@/ai/flows/cover-letter-generation';
 import type { UserProfile } from './types';
-import { configureGenkit } from 'genkit';
-import { googleAI } from '@genkit-ai/googleai';
 
-async function configureGenkitForRequest(apiKey?: string) {
-  const key = process.env.GEMINI_API_KEY || apiKey;
-  if (!key) {
-    throw new Error('Gemini API key not found. Please set it in the app or as a GEMINI_API_KEY environment variable.');
-  }
-  configureGenkit({
-    plugins: [googleAI({ apiKey: key })],
-    logLevel: 'debug',
-    enableTracingAndMetrics: true,
-  });
-}
+// No need to dynamically configure Genkit on each request.
+// It's configured once in genkit.ts and will pick up the GEMINI_API_KEY env var.
+// For client-side API key usage in development, we'll handle that separately if needed,
+// but the primary mechanism for production is the environment variable.
 
-export async function parseResumeAction(resumeDataUri: string, apiKey: string) {
-  await configureGenkitForRequest(apiKey);
+export async function parseResumeAction(resumeDataUri: string) {
   const result = await parseResume({ resumeDataUri });
   return result;
 }
 
-export async function analyzeJobDescriptionAction(jobDescription: string, apiKey: string) {
-  await configureGenkitForRequest(apiKey);
+export async function analyzeJobDescriptionAction(jobDescription: string) {
   const result = await analyzeJobDescription({ jobDescription });
   return result;
 }
@@ -78,22 +67,19 @@ function formatUserProfileForAI(profile: UserProfile): string {
     return formatted;
 }
 
-export async function generateResumeAction(profile: UserProfile, jobDescription: string, apiKey: string) {
-    await configureGenkitForRequest(apiKey);
+export async function generateResumeAction(profile: UserProfile, jobDescription: string) {
     const userDetails = formatUserProfileForAI(profile);
     const result = await generateResume({ userDetails, jobDescription });
     return result;
 }
 
-export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string, apiKey: string) {
-    await configureGenkitForRequest(apiKey);
+export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string) {
     const resumeText = formatUserProfileForAI(profile);
     const result = await calculateAtsScore({ resume: resumeText, jobDescription });
     return result;
 }
 
-export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string, apiKey: string) {
-    await configureGenkitForRequest(apiKey);
+export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string) {
     const userInformation = formatUserProfileForAI(profile);
     const result = await generateCoverLetter({ jobDescription, userInformation });
     return result;
