@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useTransition } from 'react';
@@ -21,9 +22,11 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
   const [analysis, setAnalysis] = useState<AnalyzeJobDescriptionOutput | null>(null);
 
   const handleAnalyze = () => {
-    const hasApiKey = !!localStorage.getItem('gemini_api_key') || !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!hasApiKey && process.env.NODE_ENV === 'development') {
-      toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
+    const isDev = process.env.NODE_ENV === 'development';
+    const hasLocalApiKey = !!localStorage.getItem('gemini_api_key');
+
+    if (isDev && !hasLocalApiKey) {
+      toast({ variant: 'destructive', title: 'API Key Missing', description: 'For development, please set your Gemini API key in the header.' });
       return;
     }
     if (!description) {
@@ -38,7 +41,7 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
         setAnalysis(result);
         toast({ title: 'Analysis complete!', description: 'Identified key skills, qualifications, and keywords.' });
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description. Check your API key and try again.' });
+        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description. Check your server logs and try again.' });
       }
     });
   };

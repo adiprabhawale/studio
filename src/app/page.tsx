@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
@@ -25,29 +26,30 @@ export default function Home() {
   const [atsScore, setAtsScore] = useState<{ score: number; suggestions: string[] } | null>(null);
   const [coverLetter, setCoverLetter] = useState<string>('');
   
-  // This state is just to trigger re-renders when the key changes.
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiKeyStatus, setApiKeyStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for API key in localStorage on mount.
-    // This is primarily for the dev environment. In production,
-    // the server should use the environment variable.
+    // This effect is to re-render when the local storage key changes,
+    // which is useful for development. The actual key is now primarily
+    // handled by the server environment variable.
     const storedApiKey = localStorage.getItem('gemini_api_key');
-    if (storedApiKey) {
-      setApiKey(storedApiKey);
-    }
+    setApiKeyStatus(storedApiKey);
   }, []);
 
 
   const handleGeneration = () => {
-    // In production, the server should have the API key.
-    // For local dev, we check local storage.
-    const hasApiKey = !!localStorage.getItem('gemini_api_key') || !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!hasApiKey && process.env.NODE_ENV === 'development') {
+    // The server will use the environment variable for the API key in production.
+    // For local dev, Genkit will still pick it up from process.env if set,
+    // or we can allow setting it in local storage for convenience,
+    // but we don't need to pass it to the server actions anymore.
+    const isDev = process.env.NODE_ENV === 'development';
+    const hasLocalApiKey = !!localStorage.getItem('gemini_api_key');
+
+    if (isDev && !hasLocalApiKey) {
        toast({
         variant: 'destructive',
         title: 'API Key Not Set',
-        description: 'Please set your Gemini API key in the header before generating content.',
+        description: 'For development, please set your Gemini API key in the header before generating content.',
       });
       return;
     }
@@ -85,8 +87,7 @@ export default function Home() {
       try {
         toast({ title: 'Generating Content...', description: 'AI is working its magic. Please wait.' });
         
-        // We no longer need to pass the API key to actions.
-        // The server will use the environment variable.
+        // We no longer pass the API key to actions.
         const [resumeResult, atsResult, coverLetterResult] = await Promise.all([
           generateResumeAction(validation.data, jobDescription),
           calculateAtsScoreAction(validation.data, jobDescription),
@@ -103,7 +104,7 @@ export default function Home() {
         toast({
           variant: 'destructive',
           title: 'Generation Failed',
-          description: error instanceof Error ? error.message : 'An error occurred while generating content. Please check your API key and try again.',
+          description: error instanceof Error ? error.message : 'An error occurred. Please check your API key and server logs, then try again.',
         });
       }
     });
@@ -111,7 +112,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header onApiKeyUpdate={() => setApiKey(localStorage.getItem('gemini_api_key'))} />
+      <Header onApiKeyUpdate={() => setApiKeyStatus(localStorage.getItem('gemini_api_key'))} />
       <main className="flex-1 w-full max-w-screen-2xl mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
           <div className="space-y-8">

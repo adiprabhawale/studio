@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -72,9 +73,11 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey && !process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-      toast({ variant: 'destructive', title: 'API Key Missing', description: 'Please set your Gemini API key in the header.' });
+    const isDev = process.env.NODE_ENV === 'development';
+    const hasLocalApiKey = !!localStorage.getItem('gemini_api_key');
+
+    if (isDev && !hasLocalApiKey) {
+      toast({ variant: 'destructive', title: 'API Key Missing', description: 'For development, please set your Gemini API key in the header before parsing.' });
       return;
     }
 
@@ -99,7 +102,6 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
             skills: parsedData.skills || [],
           });
 
-          // RHF's `reset` doesn't work well with `useFieldArray`, so we use `replace`
           replaceExperiences(parsedData.experience || []);
           replaceEducations(parsedData.education || []);
           replaceProjects(parsedData.projects || []);
@@ -108,7 +110,7 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
           toast({ title: 'Success!', description: 'Your resume has been parsed.' });
         } catch (error) {
           console.error("Parsing failed:", error);
-          toast({ variant: 'destructive', title: 'Parsing failed', description: error instanceof Error ? error.message : 'Could not parse resume. Please check your API key and file, then try again.' });
+          toast({ variant: 'destructive', title: 'Parsing failed', description: error instanceof Error ? error.message : 'Could not parse resume. Please check your API key and server logs, then try again.' });
         }
       });
     };
