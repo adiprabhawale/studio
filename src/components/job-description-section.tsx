@@ -30,6 +30,16 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
       toast({ variant: 'destructive', title: 'Error', description: 'Please paste a job description.' });
       return;
     }
+    const apiKey = localStorage.getItem('gemini_api_key');
+     if (!apiKey) {
+       toast({
+        variant: 'destructive',
+        title: 'API Key Not Set',
+        description: 'Please set your Gemini API key in the header before analyzing.',
+      });
+      return;
+    }
+
     startAnalyzing(async () => {
       try {
         toast({ title: 'Analyzing...', description: 'Extracting key details from the job description.' });
@@ -37,7 +47,7 @@ export function JobDescriptionSection({ onJobDescriptionChange }: JobDescription
         setAnalysis(result);
         toast({ title: 'Analysis complete!', description: 'Identified key skills, qualifications, and keywords.' });
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description.' });
+        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not analyze the job description. Check your API key.' });
       }
     });
   };

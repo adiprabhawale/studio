@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { UserProfileForm } from '@/components/user-profile-form';
@@ -24,17 +24,28 @@ export default function Home() {
   const [generatedResume, setGeneratedResume] = useState<string>('');
   const [atsScore, setAtsScore] = useState<{ score: number; suggestions: string[] } | null>(null);
   const [coverLetter, setCoverLetter] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    // ComponentDidMount: Check for API key in localStorage
+    const storedApiKey = localStorage.getItem('gemini_api_key');
+    if (storedApiKey) {
+      setApiKey(storedApiKey);
+    }
+  }, []);
+
 
   const handleGeneration = () => {
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) {
-      toast({
+    const storedApiKey = localStorage.getItem('gemini_api_key');
+    if (!storedApiKey) {
+       toast({
         variant: 'destructive',
-        title: 'API Key Missing',
-        description: 'Please set your Gemini API key in the header.',
+        title: 'API Key Not Set',
+        description: 'Please set your Gemini API key in the header before generating content.',
       });
       return;
     }
+    setApiKey(storedApiKey);
 
     if (!userProfile) {
       toast({
@@ -70,9 +81,9 @@ export default function Home() {
         toast({ title: 'Generating Content...', description: 'AI is working its magic. Please wait.' });
         
         const [resumeResult, atsResult, coverLetterResult] = await Promise.all([
-          generateResumeAction(validation.data, jobDescription, apiKey),
-          calculateAtsScoreAction(validation.data, jobDescription, apiKey),
-          generateCoverLetterAction(validation.data, jobDescription, apiKey)
+          generateResumeAction(validation.data, jobDescription, storedApiKey),
+          calculateAtsScoreAction(validation.data, jobDescription, storedApiKey),
+          generateCoverLetterAction(validation.data, jobDescription, storedApiKey)
         ]);
 
         setGeneratedResume(resumeResult.resume);
@@ -85,7 +96,7 @@ export default function Home() {
         toast({
           variant: 'destructive',
           title: 'Generation Failed',
-          description: 'An error occurred while generating content. Please try again.',
+          description: 'An error occurred while generating content. Please check your API key and try again.',
         });
       }
     });

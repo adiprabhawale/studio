@@ -6,14 +6,26 @@ import { generateResume } from '@/ai/flows/resume-generation';
 import { calculateAtsScore } from '@/ai/flows/ats-score-calculation';
 import { generateCoverLetter } from '@/ai/flows/cover-letter-generation';
 import type { UserProfile } from './types';
+import { configureGenkit } from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
+
+async function configureGenkitWithApiKey(apiKey: string) {
+  configureGenkit({
+    plugins: [googleAI({ apiKey })],
+    logLevel: 'debug',
+    enableTracingAndMetrics: true,
+  });
+}
 
 export async function parseResumeAction(resumeDataUri: string, apiKey: string) {
-  const result = await parseResume({ resumeDataUri, apiKey });
+  await configureGenkitWithApiKey(apiKey);
+  const result = await parseResume({ resumeDataUri });
   return result;
 }
 
 export async function analyzeJobDescriptionAction(jobDescription: string, apiKey: string) {
-  const result = await analyzeJobDescription({ jobDescription, apiKey });
+  await configureGenkitWithApiKey(apiKey);
+  const result = await analyzeJobDescription({ jobDescription });
   return result;
 }
 
@@ -63,19 +75,22 @@ function formatUserProfileForAI(profile: UserProfile): string {
 }
 
 export async function generateResumeAction(profile: UserProfile, jobDescription: string, apiKey: string) {
+    await configureGenkitWithApiKey(apiKey);
     const userDetails = formatUserProfileForAI(profile);
-    const result = await generateResume({ userDetails, jobDescription, apiKey });
+    const result = await generateResume({ userDetails, jobDescription });
     return result;
 }
 
 export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string, apiKey: string) {
+    await configureGenkitWithApiKey(apiKey);
     const resumeText = formatUserProfileForAI(profile);
-    const result = await calculateAtsScore({ resume: resumeText, jobDescription, apiKey });
+    const result = await calculateAtsScore({ resume: resumeText, jobDescription });
     return result;
 }
 
 export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string, apiKey: string) {
+    await configureGenkitWithApiKey(apiKey);
     const userInformation = formatUserProfileForAI(profile);
-    const result = await generateCoverLetter({ jobDescription, userInformation, apiKey });
+    const result = await generateCoverLetter({ jobDescription, userInformation });
     return result;
 }

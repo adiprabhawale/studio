@@ -82,6 +82,16 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
       toast({ variant: 'destructive', title: 'File too large', description: 'Please upload a file smaller than 5MB.' });
       return;
     }
+
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      toast({
+        variant: 'destructive',
+        title: 'API Key Not Set',
+        description: 'Please set your Gemini API key in the header before parsing a resume.',
+      });
+      return;
+    }
     
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -103,7 +113,7 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
           });
           toast({ title: 'Success!', description: 'Your resume has been parsed.' });
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Parsing failed', description: 'Could not parse resume. Please fill manually.' });
+          toast({ variant: 'destructive', title: 'Parsing failed', description: 'Could not parse resume. Please check your API key and try again.' });
         }
       });
     };
