@@ -20,15 +20,43 @@ const ParseResumeInputSchema = z.object({
 });
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
+const WorkExperienceSchema = z.object({
+    jobTitle: z.string().describe('The job title.'),
+    company: z.string().describe('The company name.'),
+    startDate: z.string().describe('The start date of the employment.'),
+    endDate: z.string().describe('The end date of the employment.'),
+    description: z.string().describe('The description of the work experience.'),
+});
+
+const EducationSchema = z.object({
+    institution: z.string().describe('The name of the institution.'),
+    degree: z.string().describe('The degree obtained.'),
+    fieldOfStudy: z.string().describe('The field of study.'),
+    graduationDate: z.string().describe('The graduation date.'),
+});
+
+const ProjectSchema = z.object({
+    name: z.string().describe('The name of the project.'),
+    description: z.string().describe('The description of the project.'),
+    url: z.string().optional().describe('The URL of the project.'),
+});
+
+const CertificationSchema = z.object({
+    name: z.string().describe('The name of the certification.'),
+    issuingOrganization: z.string().describe('The issuing organization.'),
+    dateEarned: z.string().describe('The date the certification was earned.'),
+});
+
+
 const ParseResumeOutputSchema = z.object({
   name: z.string().describe('The name of the person.'),
   email: z.string().email().describe('The email address of the person.'),
   phone: z.string().describe('The phone number of the person.'),
-  experience: z.array(z.string()).describe('List of work experiences.'),
-  education: z.array(z.string()).describe('List of educational qualifications.'),
+  experience: z.array(WorkExperienceSchema).describe('List of work experiences.'),
+  education: z.array(EducationSchema).describe('List of educational qualifications.'),
   skills: z.array(z.string()).describe('List of skills.'),
-  projects: z.array(z.string()).describe('List of projects.'),
-  certifications: z.array(z.string()).describe('List of certifications.'),
+  projects: z.array(ProjectSchema).describe('List of projects.'),
+  certifications: z.array(CertificationSchema).describe('List of certifications.'),
 });
 export type ParseResumeOutput = z.infer<typeof ParseResumeOutputSchema>;
 
@@ -46,7 +74,7 @@ const prompt = ai.definePrompt({
   - Name
   - Email
   - Phone number
-  - Work experience
+  - Work experience. Make sure to capture all details for each position including job title, company, dates and description into a single experience item.
   - Education
   - Skills
   - Projects
@@ -64,14 +92,7 @@ const parseResumeFlow = ai.defineFlow(
     outputSchema: ParseResumeOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-      prompt: prompt.prompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-        schema: prompt.output.schema!,
-      },
-      input: input,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );
