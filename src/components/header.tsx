@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ApiKeyDialog } from './api-key-dialog';
 import { KeyRound } from 'lucide-react';
 
-export function Header() {
+interface HeaderProps {
+  onApiKeyUpdate: () => void;
+}
+
+export function Header({ onApiKeyUpdate }: HeaderProps) {
   const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
 
   return (
@@ -25,7 +29,7 @@ export function Header() {
           </Button>
         </div>
       </header>
-      <ApiKeyDialog open={isApiDialogOpen} onOpenChange={setIsApiDialogOpen} />
+      <ApiKeyDialog open={isApiDialogOpen} onOpenChange={setIsApiDialogOpen} onApiKeySet={onApiKeyUpdate} />
     </>
   );
 }

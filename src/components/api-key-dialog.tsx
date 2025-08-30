@@ -17,9 +17,10 @@ import { KeyRound } from 'lucide-react';
 interface ApiKeyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onApiKeySet: () => void;
 }
 
-export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
+export function ApiKeyDialog({ open, onOpenChange, onApiKeySet }: ApiKeyDialogProps) {
   const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
 
@@ -39,6 +40,7 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
         title: 'API Key Saved',
         description: 'Your Gemini API key has been saved to local storage.',
       });
+      onApiKeySet(); // Notify parent component
       onOpenChange(false);
     } else {
       toast({
@@ -56,6 +58,7 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
       title: 'API Key Cleared',
       description: 'Your Gemini API key has been removed from local storage.',
     });
+    onApiKeySet(); // Notify parent component
   }
 
   return (
@@ -68,7 +71,7 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
           </div>
           <DialogDescription>
             Enter your Google Gemini API key. This will be stored securely in your browser's local
-            storage and will not be shared.
+            storage and will not be shared. For production, set the GEMINI_API_KEY environment variable.
           </DialogDescription>
         </DialogHeader>
         <Input

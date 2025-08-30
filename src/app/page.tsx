@@ -24,10 +24,12 @@ export default function Home() {
   const [generatedResume, setGeneratedResume] = useState<string>('');
   const [atsScore, setAtsScore] = useState<{ score: number; suggestions: string[] } | null>(null);
   const [coverLetter, setCoverLetter] = useState<string>('');
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  
+  // This state is just to trigger re-renders when the key changes.
+  const [, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
-    // ComponentDidMount: Check for API key in localStorage
+    // Check for API key in localStorage on mount
     const storedApiKey = localStorage.getItem('gemini_api_key');
     if (storedApiKey) {
       setApiKey(storedApiKey);
@@ -45,7 +47,9 @@ export default function Home() {
       });
       return;
     }
-    setApiKey(storedApiKey);
+    
+    // We don't need to set a state for the key here for generation, 
+    // as we pass it directly to the action.
 
     if (!userProfile) {
       toast({
@@ -80,6 +84,7 @@ export default function Home() {
       try {
         toast({ title: 'Generating Content...', description: 'AI is working its magic. Please wait.' });
         
+        // Pass the API key to each action
         const [resumeResult, atsResult, coverLetterResult] = await Promise.all([
           generateResumeAction(validation.data, jobDescription, storedApiKey),
           calculateAtsScoreAction(validation.data, jobDescription, storedApiKey),
@@ -96,7 +101,7 @@ export default function Home() {
         toast({
           variant: 'destructive',
           title: 'Generation Failed',
-          description: 'An error occurred while generating content. Please check your API key and try again.',
+          description: error instanceof Error ? error.message : 'An error occurred while generating content. Please check your API key and try again.',
         });
       }
     });
@@ -104,7 +109,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header />
+      <Header onApiKeyUpdate={() => setApiKey(localStorage.getItem('gemini_api_key'))} />
       <main className="flex-1 w-full max-w-screen-2xl mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
           <div className="space-y-8">
