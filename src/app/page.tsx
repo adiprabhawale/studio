@@ -60,7 +60,7 @@ export default function Home() {
         title: 'Profile Incomplete',
         description: 'Please ensure all required profile fields are filled correctly.',
       });
-      console.error(validation.error.flatten().fieldErrors);
+      console.error('Profile validation failed:', validation.error.flatten().fieldErrors);
       return;
     }
 
