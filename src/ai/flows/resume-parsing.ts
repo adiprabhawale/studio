@@ -9,7 +9,7 @@
  * - ParseResumeOutput - The return type for the parseResume function.
  */
 
-import { genkit, Plugin } from 'genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
@@ -63,17 +63,10 @@ const ParseResumeOutputSchema = z.object({
 export type ParseResumeOutput = z.infer<typeof ParseResumeOutputSchema>;
 
 export async function parseResume(input: ParseResumeInput): Promise<ParseResumeOutput> {
-  const plugins: Plugin<any>[] = [];
-  if (input.apiKey) {
-    plugins.push(googleAI({ apiKey: input.apiKey }));
-  } else if (process.env.GEMINI_API_KEY) {
-    plugins.push(googleAI({ apiKey: process.env.GEMINI_API_KEY }));
-  } else {
-    throw new Error('API key is not provided.');
-  }
+  const ai = genkit({
+    plugins: [googleAI({ apiKey: input.apiKey || process.env.GEMINI_API_KEY })],
+  });
 
-  const ai = genkit({ plugins });
-  
   const prompt = ai.definePrompt({
     name: 'resumeParsingPrompt',
     model: googleAI.model('gemini-1.5-flash'),

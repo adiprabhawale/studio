@@ -9,13 +9,14 @@
  * - CalculateAtsScoreOutput - The return type for the calculateAtsScore function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'zod';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
+import { z } from 'zod';
 
 const CalculateAtsScoreInputSchema = z.object({
   resume: z.string().describe('The resume content as a string.'),
   jobDescription: z.string().describe('The job description as a string.'),
+  apiKey: z.string().optional().describe("The user's Gemini API key."),
 });
 export type CalculateAtsScoreInput = z.infer<typeof CalculateAtsScoreInputSchema>;
 
@@ -26,15 +27,16 @@ const CalculateAtsScoreOutputSchema = z.object({
 export type CalculateAtsScoreOutput = z.infer<typeof CalculateAtsScoreOutputSchema>;
 
 export async function calculateAtsScore(input: CalculateAtsScoreInput): Promise<CalculateAtsScoreOutput> {
-  return calculateAtsScoreFlow(input);
-}
+  const ai = genkit({
+    plugins: [googleAI({ apiKey: input.apiKey || process.env.GEMINI_API_KEY })],
+  });
 
-const prompt = ai.definePrompt({
-  name: 'calculateAtsScorePrompt',
-  model: googleAI.model('gemini-1.5-flash'),
-  input: {schema: CalculateAtsScoreInputSchema},
-  output: {schema: CalculateAtsScoreOutputSchema},
-  prompt: `You are an expert resume optimizer specializing in Applicant Tracking Systems (ATS). Given a resume and a job description, calculate an ATS score (0-100) and provide specific, actionable suggestions to improve the resume's ATS compatibility.
+  const prompt = ai.definePrompt({
+    name: 'calculateAtsScorePrompt',
+    model: googleAI.model('gemini-1.5-flash'),
+    input: { schema: CalculateAtsScoreInputSchema },
+    output: { schema: CalculateAtsScoreOutputSchema },
+    prompt: `You are an expert resume optimizer specializing in Applicant Tracking Systems (ATS). Given a resume and a job description, calculate an ATS score (0-100) and provide specific, actionable suggestions to improve the resume's ATS compatibility.
 
 Resume:
 {{{resume}}}
@@ -44,16 +46,8 @@ Job Description:
 
 Consider factors such as keyword matching, formatting, section headings, and overall relevance to the job description. Explain why the ATS score was assigned and focus on improvements related to getting past the ATS. Focus on providing suggestions that improve the keyword matching in particular, such as re-wording the resume to use the same keywords.
 `,
-});
+  });
 
-const calculateAtsScoreFlow = ai.defineFlow(
-  {
-    name: 'calculateAtsScoreFlow',
-    inputSchema: CalculateAtsScoreInputSchema,
-    outputSchema: CalculateAtsScoreOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+  const { output } = await prompt(input);
+  return output!;
+}

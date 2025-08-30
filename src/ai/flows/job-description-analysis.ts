@@ -9,12 +9,13 @@
  * - AnalyzeJobDescriptionOutput - The return type for the analyzeJobDescription function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'zod';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
+import { z } from 'zod';
 
 const AnalyzeJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description to analyze.'),
+  apiKey: z.string().optional().describe("The user's Gemini API key."),
 });
 export type AnalyzeJobDescriptionInput = z.infer<typeof AnalyzeJobDescriptionInputSchema>;
 
@@ -26,31 +27,24 @@ const AnalyzeJobDescriptionOutputSchema = z.object({
 export type AnalyzeJobDescriptionOutput = z.infer<typeof AnalyzeJobDescriptionOutputSchema>;
 
 export async function analyzeJobDescription(input: AnalyzeJobDescriptionInput): Promise<AnalyzeJobDescriptionOutput> {
-  return analyzeJobDescriptionFlow(input);
-}
+  const ai = genkit({
+    plugins: [googleAI({ apiKey: input.apiKey || process.env.GEMINI_API_KEY })],
+  });
 
-const prompt = ai.definePrompt({
-  name: 'analyzeJobDescriptionPrompt',
-  model: googleAI.model('gemini-1.5-flash'),
-  input: {schema: AnalyzeJobDescriptionInputSchema},
-  output: {schema: AnalyzeJobDescriptionOutputSchema},
-  prompt: `You are an expert recruiter. Please analyze the following job description and extract key skills, qualifications, and keywords.
+  const prompt = ai.definePrompt({
+    name: 'analyzeJobDescriptionPrompt',
+    model: googleAI.model('gemini-1.5-flash'),
+    input: { schema: AnalyzeJobDescriptionInputSchema },
+    output: { schema: AnalyzeJobDescriptionOutputSchema },
+    prompt: `You are an expert recruiter. Please analyze the following job description and extract key skills, qualifications, and keywords.
 
 Job Description:
 {{{jobDescription}}}
 
 Extract the key skills, qualifications, and keywords from the job description.
 `,
-});
+  });
 
-const analyzeJobDescriptionFlow = ai.defineFlow(
-  {
-    name: 'analyzeJobDescriptionFlow',
-    inputSchema: AnalyzeJobDescriptionInputSchema,
-    outputSchema: AnalyzeJobDescriptionOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+  const { output } = await prompt(input);
+  return output!;
+}

@@ -14,8 +14,8 @@ export async function parseResumeAction(resumeDataUri: string, apiKey: string) {
   return result;
 }
 
-export async function analyzeJobDescriptionAction(jobDescription: string) {
-  const result = await analyzeJobDescription({ jobDescription });
+export async function analyzeJobDescriptionAction(jobDescription: string, apiKey: string) {
+  const result = await analyzeJobDescription({ jobDescription, apiKey });
   return result;
 }
 
@@ -64,20 +64,20 @@ function formatUserProfileForAI(profile: UserProfile): string {
     return formatted;
 }
 
-export async function generateResumeAction(profile: UserProfile, jobDescription: string) {
+export async function generateResumeAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     const userDetails = formatUserProfileForAI(profile);
-    const result = await generateResume({ userDetails, jobDescription });
+    const result = await generateResume({ userDetails, jobDescription, apiKey });
     return result;
 }
 
-export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string) {
+export async function calculateAtsScoreAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     const resumeText = formatUserProfileForAI(profile);
-    const result = await calculateAtsScore({ resume: resumeText, jobDescription });
+    const result = await calculateAtsScore({ resume: resumeText, jobDescription, apiKey });
     return result;
 }
 
-export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string) {
+export async function generateCoverLetterAction(profile: UserProfile, jobDescription: string, apiKey: string) {
     const userInformation = formatUserProfileForAI(profile);
-    const result = await generateCoverLetter({ jobDescription, userInformation });
+    const result = await generateCoverLetter({ jobDescription, userInformation, apiKey });
     return result;
 }

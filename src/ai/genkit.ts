@@ -3,9 +3,8 @@ import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 
 // This is the primary Genkit configuration.
-// It uses the googleAI plugin, which will automatically use the
-// `GEMINI_API_KEY` environment variable for authentication.
-// There is no need for dynamic configuration or passing keys from the client.
+// It is used for development and for flows that do not require dynamic API keys.
+// For production or user-specific keys, flows should dynamically configure genkit.
 export const ai = genkit({
   plugins: [googleAI()],
 });
