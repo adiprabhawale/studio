@@ -1,4 +1,7 @@
+
 'use server';
+import { config } from 'dotenv';
+config();
 
 /**
  * @fileOverview Analyzes a job description to identify key skills, qualifications, and keywords.
@@ -10,6 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const AnalyzeJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description to analyze.'),
@@ -29,6 +33,7 @@ export async function analyzeJobDescription(input: AnalyzeJobDescriptionInput): 
 
 const prompt = ai.definePrompt({
   name: 'analyzeJobDescriptionPrompt',
+  model: googleAI.model('gemini-2.0-flash'),
   input: {schema: AnalyzeJobDescriptionInputSchema},
   output: {schema: AnalyzeJobDescriptionOutputSchema},
   prompt: `You are an expert recruiter. Please analyze the following job description and extract key skills, qualifications, and keywords.

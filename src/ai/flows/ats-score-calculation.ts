@@ -1,4 +1,7 @@
+
 'use server';
+import { config } from 'dotenv';
+config();
 
 /**
  * @fileOverview Calculates an ATS score for a resume based on the job description and provides suggestions for improvement.
@@ -10,6 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const CalculateAtsScoreInputSchema = z.object({
   resume: z.string().describe('The resume content as a string.'),
@@ -29,6 +33,7 @@ export async function calculateAtsScore(input: CalculateAtsScoreInput): Promise<
 
 const prompt = ai.definePrompt({
   name: 'calculateAtsScorePrompt',
+  model: googleAI.model('gemini-2.0-flash'),
   input: {schema: CalculateAtsScoreInputSchema},
   output: {schema: CalculateAtsScoreOutputSchema},
   prompt: `You are an expert resume optimizer specializing in Applicant Tracking Systems (ATS). Given a resume and a job description, calculate an ATS score (0-100) and provide specific, actionable suggestions to improve the resume's ATS compatibility.

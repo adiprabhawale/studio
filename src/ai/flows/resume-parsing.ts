@@ -1,5 +1,8 @@
-// src/ai/flows/resume-parsing.ts
+
 'use server';
+import { config } from 'dotenv';
+config();
+
 /**
  * @fileOverview A resume parsing AI agent.
  *
@@ -10,6 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const ParseResumeInputSchema = z.object({
   resumeDataUri: z
@@ -66,6 +70,7 @@ export async function parseResume(input: ParseResumeInput): Promise<ParseResumeO
 
 const prompt = ai.definePrompt({
   name: 'parseResumePrompt',
+  model: googleAI.model('gemini-2.0-flash'),
   input: {schema: ParseResumeInputSchema},
   output: {schema: ParseResumeOutputSchema},
   prompt: `You are an expert resume parser. Your job is to extract information from a resume.

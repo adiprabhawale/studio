@@ -10,8 +10,6 @@ import { calculateAtsScore } from '@/ai/flows/ats-score-calculation';
 import { generateCoverLetter } from '@/ai/flows/cover-letter-generation';
 import type { UserProfile } from './types';
 
-// The API key is now handled exclusively on the server via the GEMINI_API_KEY environment variable.
-// There is no need to pass it from the client.
 
 export async function parseResumeAction(resumeDataUri: string) {
   const result = await parseResume({ resumeDataUri });
