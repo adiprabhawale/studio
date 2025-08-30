@@ -10,9 +10,11 @@ import { configureGenkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
 
 async function configureGenkitForRequest(apiKey?: string) {
-  const key = apiKey || process.env.GEMINI_API_KEY;
+  // In a production environment, the API key is set in an environment variable.
+  // In development, the API key is passed from the client.
+  const key = process.env.GEMINI_API_KEY || apiKey;
   if (!key) {
-    // This case should be handled by client-side checks, 
+    // This case should be handled by client-side checks,
     // but as a fallback, we throw an error.
     throw new Error('Gemini API key not found. Please set it in the app or as a GEMINI_API_KEY environment variable.');
   }

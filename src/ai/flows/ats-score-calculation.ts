@@ -9,13 +9,11 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const CalculateAtsScoreInputSchema = z.object({
   resume: z.string().describe('The resume content as a string.'),
   jobDescription: z.string().describe('The job description as a string.'),
-  apiKey: z.string().optional().describe('The Gemini API key.'),
 });
 export type CalculateAtsScoreInput = z.infer<typeof CalculateAtsScoreInputSchema>;
 
@@ -57,16 +55,13 @@ const calculateAtsScoreFlow = ai.defineFlow(
     outputSchema: CalculateAtsScoreOutputSchema,
   },
   async input => {
-    const {apiKey, ...rest} = input;
-    const model = googleAI({apiKey});
-
     const {output} = await ai.generate({
       prompt: calculateAtsScorePrompt.prompt,
-      model: model.model('gemini-2.0-flash'),
+      model: 'googleai/gemini-2.0-flash',
       output: {
         schema: calculateAtsScorePrompt.output.schema!,
       },
-      input: rest,
+      input: input,
     });
     return output!;
   }

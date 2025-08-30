@@ -9,12 +9,10 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const AnalyzeJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description to analyze.'),
-  apiKey: z.string().optional().describe('The Gemini API key.'),
 });
 export type AnalyzeJobDescriptionInput = z.infer<typeof AnalyzeJobDescriptionInputSchema>;
 
@@ -53,16 +51,13 @@ const analyzeJobDescriptionFlow = ai.defineFlow(
     outputSchema: AnalyzeJobDescriptionOutputSchema,
   },
   async input => {
-    const {apiKey, ...rest} = input;
-    const model = googleAI({apiKey});
-
     const {output} = await ai.generate({
       prompt: prompt.prompt,
-      model: model.model('gemini-2.0-flash'),
+      model: 'googleai/gemini-2.0-flash',
       output: {
         schema: prompt.output.schema!,
       },
-      input: rest,
+      input: input,
     });
     return output!;
   }
