@@ -38,7 +38,7 @@ export function ApiKeyDialog({ open, onOpenChange, onApiKeySet }: ApiKeyDialogPr
       localStorage.setItem('gemini_api_key', apiKey);
       toast({
         title: 'API Key Saved',
-        description: 'Your Gemini API key has been saved to local storage.',
+        description: 'Your Gemini API key has been saved to local storage for development.',
       });
       onApiKeySet(); // Notify parent component
       onOpenChange(false);
@@ -67,11 +67,11 @@ export function ApiKeyDialog({ open, onOpenChange, onApiKeySet }: ApiKeyDialogPr
         <DialogHeader>
           <div className="flex items-center gap-2">
             <KeyRound className="w-6 h-6" />
-            <DialogTitle>Gemini API Key</DialogTitle>
+            <DialogTitle>Set Development API Key</DialogTitle>
           </div>
           <DialogDescription>
-            Enter your Google Gemini API key. This will be stored securely in your browser's local
-            storage and will not be shared. For production, set the GEMINI_API_KEY environment variable.
+            Enter your Google Gemini API key for local development. This will be stored in your browser.
+            In production, the app will use the `GEMINI_API_KEY` environment variable set on the server.
           </DialogDescription>
         </DialogHeader>
         <Input

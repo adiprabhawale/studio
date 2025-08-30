@@ -73,14 +73,6 @@ export function UserProfileForm({ onProfileChange }: UserProfileFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const isDev = process.env.NODE_ENV === 'development';
-    const hasLocalApiKey = !!localStorage.getItem('gemini_api_key');
-
-    if (isDev && !hasLocalApiKey) {
-      toast({ variant: 'destructive', title: 'API Key Missing', description: 'For development, please set your Gemini API key in the header before parsing.' });
-      return;
-    }
-
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({ variant: 'destructive', title: 'File too large', description: 'Please upload a file smaller than 5MB.' });
       return;

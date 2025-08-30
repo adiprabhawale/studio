@@ -1,5 +1,7 @@
 
 'use server';
+import { config } from 'dotenv';
+config();
 
 import { parseResume } from '@/ai/flows/resume-parsing';
 import { analyzeJobDescription } from '@/ai/flows/job-description-analysis';
